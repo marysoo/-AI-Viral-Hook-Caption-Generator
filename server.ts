@@ -1,9 +1,5 @@
 import express from "express";
 import path from "path";
-import fs from "fs";
-
-console.log("📂 Current Directory:", process.cwd());
-console.log("📂 Directory Contents:", fs.readdirSync(process.cwd()));
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
