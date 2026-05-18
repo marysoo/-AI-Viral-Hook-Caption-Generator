@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: viral-ai-web
+    name: viral-ai-engine
     env: node
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -9,16 +9,7 @@ services:
         value: production
       - key: GEMINI_API_KEY
         sync: false
-      - key: FIREBASE_PROJECT_ID
-        sync: false
-
-  - type: worker
-    name: viral-ai-bot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
-    envVars:
       - key: BOT_TOKEN
         sync: false
-      - key: API_URL
-        value: https://viral-ai-web.onrender.com/api/generate
+      - key: APP_URL
+        sync: false

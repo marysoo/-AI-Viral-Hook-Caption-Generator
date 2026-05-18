@@ -4,11 +4,24 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import * as admin from "firebase-admin";
+import { Telegraf, Markup } from "telegraf";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const APP_URL = process.env.APP_URL;
+
+// Initialize Gemini
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
 
 // Lazy Firebase Admin
 let db: admin.firestore.Firestore | null = null;
@@ -29,37 +42,8 @@ function getDb() {
   return db;
 }
 
-// Initialize Gemini
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY!,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
-  }
-});
-
-app.use(express.json());
-
-// API Routes
-app.post("/api/generate", async (req, res) => {
-  try {
-    const { topic, platform, niche, tone, isPremium, userId } = req.body;
-
-    // Optional: usage tracking if userId is provided
-    const firestore = getDb();
-    if (firestore && userId) {
-      const userRef = firestore.collection('users').doc(userId);
-      const userDoc = await userRef.get();
-      if (userDoc.exists) {
-        const data = userDoc.data();
-        if (!isPremium && data?.dailyCount >= 3) {
-          return res.status(403).json({ error: "Daily limit reached. Upgrade to Premium!" });
-        }
-        await userRef.update({ dailyCount: (data?.dailyCount || 0) + 1 });
-      }
-    }
-
+// Internal Generation logic for both API and Bot
+async function generateViralContent({ topic, platform, niche, tone, isPremium }: any) {
     const modelName = isPremium ? "gemini-3.1-pro-preview" : "gemini-3-flash-preview";
     const hookCount = isPremium ? 5 : 3;
     
@@ -90,7 +74,68 @@ JSON FORMAT:
       },
     });
 
-    res.json(JSON.parse(response.text || "{}"));
+    return JSON.parse(response.text || "{}");
+}
+
+// Bot logic using Telegraf
+let bot: Telegraf | null = null;
+if (BOT_TOKEN) {
+  bot = new Telegraf(BOT_TOKEN);
+
+  bot.start((ctx) => {
+    ctx.reply(
+      "🚀 *WELCOME TO VIRALAI BOT*\n\n" +
+      "I generate high-retention content hooks and captions.\n\n" +
+      "Select your platform:",
+      Markup.inlineKeyboard([
+        [Markup.button.callback('🚀 TikTok', 'platform_TikTok'), Markup.button.callback('📸 Reels', 'platform_Reels')],
+        [Markup.button.callback('📺 Shorts', 'platform_Shorts'), Markup.button.callback('🐦 Twitter', 'platform_Twitter')]
+      ])
+    );
+  });
+
+  bot.action(/platform_(.+)/, async (ctx) => {
+    const platform = ctx.match[1];
+    await ctx.answerCbQuery();
+    await ctx.reply(`✅ *Platform set to ${platform}*\nNow, send me your **TOPIC** (e.g., 'How to grow a business online').`);
+  });
+
+  bot.on('text', async (ctx) => {
+    const topic = ctx.message.text;
+    const platform = 'TikTok'; // Simplified for this version
+    
+    const status = await ctx.reply("✨ Mining viral patterns...");
+    
+    try {
+      const result = await generateViralContent({ topic, platform, niche: 'General', tone: 'Energetic', isPremium: false });
+      
+      const hooks = result.hooks.map((h: string, i: number) => `🪝 *${i+1}.* ${h}`).join('\n');
+      const message = `🎯 *RESULT FOR: ${topic.toUpperCase()}*\n\n${hooks}\n\n✍️ *CAPTION:*\n${result.caption}\n\n🏷️ ${result.hashtags.join(' ')}`;
+      
+      await ctx.telegram.editMessageText(ctx.chat.id, status.message_id, undefined, message, { parse_mode: 'Markdown' });
+    } catch (e) {
+      console.error(e);
+      await ctx.reply("❌ Error generating content.");
+    }
+  });
+}
+
+app.use(express.json());
+
+// Bot Webhook Route
+if (bot && APP_URL) {
+    const webhookPath = `/api/bot-webhook-${BOT_TOKEN.slice(-8)}`;
+    app.use(bot.webhookCallback(webhookPath));
+    bot.telegram.setWebhook(`${APP_URL}${webhookPath}`)
+        .then(() => console.log("🤖 Telegram Webhook Registered"))
+        .catch(err => console.error("❌ Webhook Error:", err));
+}
+
+// API Routes
+app.post("/api/generate", async (req, res) => {
+  try {
+    const result = await generateViralContent(req.body);
+    res.json(result);
   } catch (error: any) {
     console.error("AI Error:", error);
     res.status(500).json({ error: "Failed to generate content: " + error.message });
