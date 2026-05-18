@@ -8,9 +8,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: GEMINI_API_KEY
-        fromValue: YOUR_GEMINI_KEY
+        sync: false
       - key: FIREBASE_PROJECT_ID
-        fromValue: YOUR_FIREBASE_ID
+        sync: false
 
   - type: worker
     name: viral-ai-bot
@@ -19,6 +19,6 @@ services:
     startCommand: python bot.py
     envVars:
       - key: BOT_TOKEN
-        fromValue: YOUR_BOT_TOKEN
+        sync: false
       - key: API_URL
         value: https://viral-ai-web.onrender.com/api/generate
