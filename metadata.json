@@ -1,0 +1,6 @@
+{
+  "name": "ViralAI",
+  "description": "High-conversion viral hook and caption generator for social media creators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and usage tracking",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "plan": { "type": "string", "enum": ["free", "premium"] },
+        "dailyCount": { "type": "integer" },
+        "lastResetDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "plan"]
+    },
+    "Generation": {
+      "title": "Generation",
+      "description": "AI generated hook/caption history",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "topic": { "type": "string" },
+        "platform": { "type": "string" },
+        "hook": { "type": "string" },
+        "caption": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "topic", "hook", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User configuration and usage statistics"
+    },
+    "generations/{generationId}": {
+      "schema": "Generation",
+      "description": "Historical generation logs"
+    }
+  }
+}

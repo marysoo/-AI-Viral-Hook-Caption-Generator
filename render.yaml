@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: viral-ai-web
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        fromValue: YOUR_GEMINI_KEY
+      - key: FIREBASE_PROJECT_ID
+        fromValue: YOUR_FIREBASE_ID
+
+  - type: worker
+    name: viral-ai-bot
+    env: python
+    buildCommand: pip install python-telegram-bot requests
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        fromValue: YOUR_BOT_TOKEN
+      - key: API_URL
+        value: https://viral-ai-web.onrender.com/api/generate
