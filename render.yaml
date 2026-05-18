@@ -15,7 +15,7 @@ services:
   - type: worker
     name: viral-ai-bot
     env: python
-    buildCommand: pip install python-telegram-bot requests
+    buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
     envVars:
       - key: BOT_TOKEN
