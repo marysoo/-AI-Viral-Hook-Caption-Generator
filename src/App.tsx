@@ -19,6 +19,8 @@ export default function App() {
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'generator' | 'bot'>('generator');
+  const [botToken, setBotToken] = useState('');
+  const [backendUrl, setBackendUrl] = useState(typeof window !== 'undefined' ? window.location.origin : '');
 
   const handleGenerate = async () => {
     if (!topic) return;
@@ -268,19 +270,45 @@ export default function App() {
               className="max-w-4xl mx-auto"
             >
               <div className="brutal-card mb-8 bg-neon">
-                <h2 className="font-display text-4xl uppercase mb-4">Deployment Guide</h2>
+                <h2 className="font-display text-4xl uppercase mb-4">Launch Your Bot</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                   <div className="brutal-border p-4 bg-white">
-                    <h3 className="font-black text-sm uppercase mb-2">Step 1: GitHub</h3>
-                    <p className="text-xs">Push this code to a new repo. Ensure `.env` is ignored but `render.yaml` is included.</p>
+                    <h3 className="font-black text-sm uppercase mb-2">1. Bot Configuration</h3>
+                    <div className="space-y-4 pt-2">
+                        <div>
+                            <label className="text-[10px] font-black uppercase block mb-1">Bot Token (from @BotFather)</label>
+                            <input 
+                                type="password" 
+                                value={botToken}
+                                onChange={(e) => setBotToken(e.target.value)}
+                                placeholder="Paste token here..."
+                                className="w-full p-2 border-2 border-brutal-black font-mono text-xs focus:bg-neon/10 outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black uppercase block mb-1">Backend API URL</label>
+                            <input 
+                                type="text" 
+                                value={backendUrl}
+                                onChange={(e) => setBackendUrl(e.target.value)}
+                                placeholder="https://your-app.onrender.com"
+                                className="w-full p-2 border-2 border-brutal-black font-mono text-xs focus:bg-neon/10 outline-none"
+                            />
+                        </div>
+                    </div>
                   </div>
                   <div className="brutal-border p-4 bg-white">
-                    <h3 className="font-black text-sm uppercase mb-2">Step 2: Render</h3>
-                    <p className="text-xs">Connect your GitHub. Render will auto-detect the `render.yaml` and launch your API + Bot.</p>
+                    <h3 className="font-black text-sm uppercase mb-2">2. Deployment Guide</h3>
+                    <ul className="text-[10px] space-y-2 mt-2 font-bold uppercase">
+                        <li className="flex gap-2"><span className="text-neon bg-black px-1">GH</span> Create a GitHub Repo</li>
+                        <li className="flex gap-2"><span className="text-neon bg-black px-1">RN</span> Connect to Render.com</li>
+                        <li className="flex gap-2"><span className="text-neon bg-black px-1">EV</span> Set GEMINI_API_KEY in Render Vars</li>
+                        <li className="flex gap-2"><span className="text-neon bg-black px-1">EV</span> Set BOT_TOKEN in Render Vars</li>
+                    </ul>
                   </div>
                 </div>
               </div>
-              <BotCodeSnippet />
+              <BotCodeSnippet customToken={botToken} customUrl={backendUrl} />
             </motion.div>
           )}
         </AnimatePresence>

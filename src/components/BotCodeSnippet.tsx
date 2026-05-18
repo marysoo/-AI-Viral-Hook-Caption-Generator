@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Copy, Check } from 'lucide-react';
 
-export default function BotCodeSnippet() {
+export default function BotCodeSnippet({ customToken, customUrl }: { customToken?: string, customUrl?: string }) {
   const [copied, setCopied] = useState(false);
   
   const pythonCode = useMemo(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'YOUR_DEPLOYED_APP_URL';
+    const origin = customUrl || (typeof window !== 'undefined' ? window.location.origin : 'YOUR_DEPLOYED_APP_URL');
+    const token = customToken || 'YOUR_BOT_TOKEN';
     return `import logging
 import requests
 import json
@@ -15,6 +16,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 
 # ViralAI Configuration
 API_URL = "${origin}/api/generate"
+TOKEN = "${token}"
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -101,9 +103,7 @@ async def generate(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await status_msg.edit_text("❌ **ERROR:** Failed to connect to ViralAI. Check API URL.")
 
 if __name__ == '__main__':
-    # ⚠️ Replace 'YOUR_BOT_TOKEN' below
-    TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN')
-    
+    # Initialize the application
     app = ApplicationBuilder().token(TOKEN).build()
     
     app.add_handler(CommandHandler('start', start))
