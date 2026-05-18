@@ -65,7 +65,7 @@ JSON FORMAT:
   "hashtags": ["#..."]
 }`;
 
-    const response = await ai.models.generateContent({
+    const responseContent = await ai.models.generateContent({
       model: modelName,
       contents: `Topic: ${topic}. Please generate the hooks and caption in JSON format.`,
       config: {
@@ -74,7 +74,7 @@ JSON FORMAT:
       },
     });
 
-    return JSON.parse(response.text || "{}");
+    return JSON.parse(responseContent.text || "{}");
 }
 
 // Bot logic using Telegraf
@@ -109,8 +109,11 @@ if (BOT_TOKEN) {
     try {
       const result = await generateViralContent({ topic, platform, niche: 'General', tone: 'Energetic', isPremium: false });
       
-      const hooks = result.hooks.map((h: string, i: number) => `🪝 *${i+1}.* ${h}`).join('\n');
-      const message = `🎯 *RESULT FOR: ${topic.toUpperCase()}*\n\n${hooks}\n\n✍️ *CAPTION:*\n${result.caption}\n\n🏷️ ${result.hashtags.join(' ')}`;
+      const hooks = (result.hooks || []).map((h: string, i: number) => `🪝 *${i+1}.* ${h}`).join('\n');
+      const caption = result.caption || "No caption generated.";
+      const hashtags = (result.hashtags || []).join(' ');
+      
+      const message = `🎯 *RESULT FOR: ${topic.toUpperCase()}*\n\n${hooks}\n\n✍️ *CAPTION:*\n${caption}\n\n🏷️ ${hashtags}`;
       
       await ctx.telegram.editMessageText(ctx.chat.id, status.message_id, undefined, message, { parse_mode: 'Markdown' });
     } catch (e) {
@@ -122,13 +125,27 @@ if (BOT_TOKEN) {
 
 app.use(express.json());
 
-// Bot Webhook Route
-if (bot && APP_URL) {
+// Bot Initialization
+if (bot && BOT_TOKEN) {
+  if (APP_URL) {
     const webhookPath = `/api/bot-webhook-${BOT_TOKEN.slice(-8)}`;
     app.use(bot.webhookCallback(webhookPath));
     bot.telegram.setWebhook(`${APP_URL}${webhookPath}`)
         .then(() => console.log("🤖 Telegram Webhook Registered"))
         .catch(err => console.error("❌ Webhook Error:", err));
+  } else {
+    bot.launch()
+        .then(() => console.log("🤖 Telegram Bot Polling Started"))
+        .catch(err => console.error("❌ Bot Launch Error:", err));
+  }
+
+  // Graceful stop
+  process.once('SIGINT', () => bot?.stop('SIGINT'));
+  process.once('SIGTERM', () => bot?.stop('SIGTERM'));
+} else if (BOT_TOKEN) {
+    console.warn("⚠️ Bot instance not created. Check your configuration.");
+} else if (process.env.NODE_ENV === "production") {
+    console.warn("⚠️ BOT_TOKEN missing in production. Bot will not start.");
 }
 
 // API Routes

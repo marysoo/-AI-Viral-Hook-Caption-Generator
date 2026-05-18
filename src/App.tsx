@@ -270,28 +270,28 @@ export default function App() {
               className="max-w-4xl mx-auto"
             >
               <div className="brutal-card mb-8 bg-neon">
-                <h2 className="font-display text-4xl uppercase mb-4">Deployment Ready</h2>
+                <h2 className="font-display text-4xl uppercase mb-4">Integrated Bot Engine</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                   <div className="brutal-border p-4 bg-white">
-                    <h3 className="font-black text-sm uppercase mb-2">1. Files Created</h3>
-                    <p className="text-[10px] font-bold">I have generated `bot.py` and `requirements.txt` in your root directory. These are ready to be pushed to GitHub.</p>
+                    <h3 className="font-black text-sm uppercase mb-2">🚀 Unified Deployment</h3>
+                    <p className="text-[10px] font-bold">The bot is now integrated directly into the Node.js server! When you deploy to Render, a single "Web Service" runs both the API and the Bot. This saves you money and resources.</p>
                   </div>
                   <div className="brutal-border p-4 bg-white">
-                    <h3 className="font-black text-sm uppercase mb-2">2. Bot Configuration</h3>
-                    <div className="space-y-2 pt-2">
-                        <label className="text-[10px] font-black uppercase block">Test locally with your Token:</label>
-                        <input 
-                            type="password" 
-                            value={botToken}
-                            onChange={(e) => setBotToken(e.target.value)}
-                            placeholder="Bot Token..."
-                            className="w-full p-2 border-2 border-brutal-black font-mono text-[10px] outline-none"
-                        />
-                    </div>
+                    <h3 className="font-black text-sm uppercase mb-2">🛠️ Setup Steps</h3>
+                    <ul className="text-[10px] space-y-1 font-bold uppercase list-disc ml-4">
+                      <li>Obtain token from @BotFather</li>
+                      <li>Set `BOT_TOKEN` in your hosting Env Vars</li>
+                      <li>Set `APP_URL` to your production URL (for Webhooks)</li>
+                      <li>Run `npm start` (Unified Command)</li>
+                    </ul>
                   </div>
                 </div>
               </div>
-              <BotCodeSnippet customToken={botToken} customUrl={backendUrl} />
+              <div className="mb-12">
+                <h3 className="font-display text-2xl uppercase mb-4 underline">Standalone Python Template</h3>
+                <p className="text-xs mb-4">If you prefer running a dedicated Python worker, use the script below. Note: Render Free tier may require a separate start command: `python bot.py`</p>
+                <BotCodeSnippet customToken={botToken} customUrl={backendUrl} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
