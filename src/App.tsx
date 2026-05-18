@@ -273,8 +273,8 @@ export default function App() {
                 <h2 className="font-display text-4xl uppercase mb-4">Integrated Bot Engine</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                   <div className="brutal-border p-4 bg-white">
-                    <h3 className="font-black text-sm uppercase mb-2">🚀 Unified Deployment</h3>
-                    <p className="text-[10px] font-bold">The bot is now integrated directly into the Node.js server! When you deploy to Render, a single "Web Service" runs both the API and the Bot. This saves you money and resources.</p>
+                    <h3 className="font-black text-sm uppercase mb-2">🚀 Optimized Deployment</h3>
+                    <p className="text-[10px] font-bold">I've moved the server build to the root directory for maximum compatibility with Render's file system. Files like `server.cjs` will be generated during build.</p>
                   </div>
                   <div className="brutal-border p-4 bg-white">
                     <h3 className="font-black text-sm uppercase mb-2">🛠️ Setup Steps</h3>

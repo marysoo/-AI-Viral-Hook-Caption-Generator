@@ -1,5 +1,9 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
+
+console.log("📂 Current Directory:", process.cwd());
+console.log("📂 Directory Contents:", fs.readdirSync(process.cwd()));
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
@@ -124,6 +128,7 @@ if (BOT_TOKEN) {
 }
 
 app.use(express.json());
+app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 // Bot Initialization
 if (bot && BOT_TOKEN) {
